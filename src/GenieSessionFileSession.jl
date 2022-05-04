@@ -13,13 +13,18 @@ function sessions_path()
 end
 
 
-function __init__()
+function setup_folder()
   if ! isdir(sessions_path())
     @warn "Sessions folder $(sessions_path()) does not exist"
     @debug "Attempting to create sessions folder at $(sessions_path())"
 
     mkpath(sessions_path())
   end
+end
+
+
+function __init__()
+  setup_folder()
 end
 
 
@@ -70,7 +75,14 @@ end
 Attempts to read from file the session object serialized as `session_id`.
 """
 function read(session_id::String) :: Union{Nothing,GenieSession.Session}
-  isfile(joinpath(sessions_path(), session_id)) || return nothing
+  try
+    isfile(joinpath(sessions_path(), session_id)) || return nothing
+  catch ex
+    @error "Failed to read session data"
+    @error ex
+
+    return nothing
+  end
 
   try
     open(joinpath(sessions_path(), session_id), "r") do (io)
