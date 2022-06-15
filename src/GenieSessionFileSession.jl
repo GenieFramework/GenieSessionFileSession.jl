@@ -15,7 +15,7 @@ end
 
 function setup_folder()
   if ! isdir(sessions_path())
-    @warn "Sessions folder $(sessions_path()) does not exist"
+    # @warn "Sessions folder $(sessions_path()) does not exist"
     @debug "Attempting to create sessions folder at $(sessions_path())"
 
     mkpath(sessions_path())
@@ -39,12 +39,12 @@ function write(session::GenieSession.Session) :: GenieSession.Session
 
     return session
   catch ex
-    @error "Failed to store session data"
-    @error ex
+    @debug "Failed to store session data"
+    @debug ex
   end
 
   try
-    @warn "Resetting session"
+    @debug "Resetting session"
 
     session = GenieSession.Session(GenieSession.id())
     Genie.Cookies.set!(Genie.Router.params(Genie.Router.PARAMS_RESPONSE_KEY), GenieSession.session_key_name(), session.id, GenieSession.session_options())
@@ -53,8 +53,8 @@ function write(session::GenieSession.Session) :: GenieSession.Session
 
     return session
   catch ex
-    @error "Failed to regenerate and store session data. Giving up."
-    @error ex
+    @debug "Failed to regenerate and store session data. Giving up."
+    @debug ex
   end
 
   session
@@ -78,8 +78,8 @@ function read(session_id::String) :: Union{Nothing,GenieSession.Session}
   try
     isfile(joinpath(sessions_path(), session_id)) || return nothing
   catch ex
-    @error "Failed to read session data"
-    @error ex
+    @debug "Failed to read session data"
+    @debug ex
 
     return nothing
   end
@@ -89,7 +89,7 @@ function read(session_id::String) :: Union{Nothing,GenieSession.Session}
       Serialization.deserialize(io)
     end
   catch ex
-    @error "Can't read session"
+    @debug "Can't read session"
     # @error ex
   end
 end
