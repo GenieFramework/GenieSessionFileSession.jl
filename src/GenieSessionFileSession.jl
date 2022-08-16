@@ -15,7 +15,6 @@ end
 
 function setup_folder()
   if ! isdir(sessions_path())
-    # @warn "Sessions folder $(sessions_path()) does not exist"
     @debug "Attempting to create sessions folder at $(sessions_path())"
 
     mkpath(sessions_path())
@@ -39,12 +38,12 @@ function write(session::GenieSession.Session) :: GenieSession.Session
 
     return session
   catch ex
-    @debug "Failed to store session data"
-    @debug ex
+    @error "Failed to store session data"
+    @error ex
   end
 
   try
-    @debug "Resetting session"
+    @error "Resetting session"
 
     session = GenieSession.Session(GenieSession.id())
     Genie.Cookies.set!(Genie.Router.params(Genie.Router.PARAMS_RESPONSE_KEY), GenieSession.session_key_name(), session.id, GenieSession.session_options())
@@ -53,8 +52,8 @@ function write(session::GenieSession.Session) :: GenieSession.Session
 
     return session
   catch ex
-    @debug "Failed to regenerate and store session data. Giving up."
-    @debug ex
+    @error "Failed to regenerate and store session data. Giving up."
+    @error ex
   end
 
   session
@@ -62,6 +61,8 @@ end
 
 
 function write_session(session::GenieSession.Session)
+  isdir(sessions_path()) || mkpath(sessions_path())
+
   open(joinpath(sessions_path(), session.id), "w") do io
     Serialization.serialize(io, session)
   end
