@@ -3,7 +3,7 @@ module GenieSessionFileSession
 import Genie, GenieSession
 import Serialization, Logging
 
-const SESSIONS_PATH = Ref{String}("sessions")
+const SESSIONS_PATH = Ref{String}(Genie.Configuration.isprod() ? "sessions" : mktempdir())
 
 function sessions_path(path::String)
   SESSIONS_PATH[] = normpath(path) |> abspath
