@@ -2,6 +2,7 @@ module GenieSessionFileSession
 
 import Genie, GenieSession
 import Serialization, Logging
+using Genie.Context
 
 const SESSIONS_PATH = Ref{String}(Genie.Configuration.isprod() ? "sessions" : mktempdir())
 
@@ -32,11 +33,11 @@ end
 
 Persists the `Session` object to the file system, using the configured sessions folder and returns it.
 """
-function write(session::GenieSession.Session) :: GenieSession.Session
+function write(params::Params) :: GenieSession.Session
   try
-    write_session(session)
+    write_session(params[:session])
 
-    return session
+    return params[:session]
   catch ex
     @error "Failed to store session data"
     @error ex
@@ -46,9 +47,8 @@ function write(session::GenieSession.Session) :: GenieSession.Session
     @error "Resetting session"
 
     session = GenieSession.Session(GenieSession.id())
-    Genie.Cookies.set!(Genie.Router.params(Genie.Router.PARAMS_RESPONSE_KEY), GenieSession.session_key_name(), session.id, GenieSession.session_options())
+    Genie.Cookies.set!(params[:response], GenieSession.session_key_name(), session.id, GenieSession.session_options())
     write_session(session)
-    Genie.Router.params(GenieSession.PARAMS_SESSION_KEY, session)
 
     return session
   catch ex
@@ -107,22 +107,23 @@ end
 
 Generic method for persisting session data - delegates to the underlying `SessionAdapter`.
 """
-function GenieSession.persist(req::GenieSession.HTTP.Request, res::GenieSession.HTTP.Response, params::Dict{Symbol,Any}) :: Tuple{GenieSession.HTTP.Request,GenieSession.HTTP.Response,Dict{Symbol,Any}}
-  write(params[GenieSession.PARAMS_SESSION_KEY])
+function GenieSession.persist(req::GenieSession.HTTP.Request, res::GenieSession.HTTP.Response, params::Params) :: Tuple{GenieSession.HTTP.Request,GenieSession.HTTP.Response,Params}
+  write(params)
 
   req, res, params
 end
-function GenieSession.persist(s::GenieSession.Session) :: GenieSession.Session
-  write(s)
+function GenieSession.persist(params::Genie.Context.Params) :: Genie.Context.Params
+  write(params)
+  params
 end
 
 
 """
-    load(session_id::String) :: Session
+    load(req::HTTP.Request, res::HTTP.Response, session_id::String) :: Session
 
 Loads session data from persistent storage.
 """
-function GenieSession.load(session_id::String) :: GenieSession.Session
+function GenieSession.load(req, res, session_id::String) :: GenieSession.Session
   session = read(session_id)
 
   session === nothing ? GenieSession.Session(session_id) : (session)

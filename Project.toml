@@ -1,7 +1,7 @@
 name = "GenieSessionFileSession"
 uuid = "5c4fdc26-39e3-47cf-9034-e533e09961c2"
 authors = ["Adrian Salceanu <adrian.salceanu@gmail.com> and contributors"]
-version = "1.1.0"
+version = "2.0"
 
 [deps]
 Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
@@ -10,12 +10,6 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Serialization = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 
 [compat]
-Genie = "5"
-GenieSession = "1"
+Genie = "6"
+GenieSession = "2"
 julia = "1.6"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]
