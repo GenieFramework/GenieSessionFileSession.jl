@@ -33,7 +33,7 @@ end
 
 Persists the `Session` object to the file system, using the configured sessions folder and returns it.
 """
-function write(params::Params) :: GenieSession.Session
+function GenieSession.write(params::Params) :: GenieSession.Session
   try
     write_session(params[:session])
 
@@ -101,21 +101,6 @@ end
 
 #===#
 # IMPLEMENTATION
-
-"""
-    persist(s::Session) :: Session
-
-Generic method for persisting session data - delegates to the underlying `SessionAdapter`.
-"""
-function GenieSession.persist(req::GenieSession.HTTP.Request, res::GenieSession.HTTP.Response, params::Params) :: Tuple{GenieSession.HTTP.Request,GenieSession.HTTP.Response,Params}
-  write(params)
-
-  req, res, params
-end
-function GenieSession.persist(params::Genie.Context.Params) :: Genie.Context.Params
-  write(params)
-  params
-end
 
 
 """
