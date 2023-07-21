@@ -91,7 +91,7 @@ function read(session_id::String) :: Union{Nothing,GenieSession.Session}
     end
   catch ex
     @debug "Can't read session"
-    # @error ex
+    @debug ex
   end
 end
 
